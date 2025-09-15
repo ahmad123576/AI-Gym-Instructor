@@ -19,3 +19,10 @@ The **AI Gym Instructor** is a web-based application designed to revolutionize h
 - **SQLite**: Lightweight database for progress tracking.
 - **NumPy & Matplotlib**: Numerical operations and visualizations.
 - **Google Gemini API** (optional): Advanced feedback (requires API key).
+
+- ## How To Run
+- use these files in a project folder
+- make a folder within project folder named pages
+- within pages folder, put progrees,py and tutorials.py
+- then run 'pip install -r requirements.txt' in your cmd terminal
+- after that , write 'streamlit run main.py' in your terminal
