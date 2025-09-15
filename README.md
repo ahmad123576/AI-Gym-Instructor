@@ -1,2 +1,1 @@
-# AI-Gym-Instructor
-AI Gym Instructor: A web-based application leveraging AI to provide real-time exercise form correction and progress tracking. Built with Python, Streamlit, MediaPipe, and optional Gemini API during an internship at Abacus Consulting, Lahore (Sep 2025). Supports Squat, Bicep Curl, and Overhead Press with rep counting, feedback, and SQLite storage.
+A web-based application leveraging AI to provide real-time exercise form correction and progress tracking. Built with Python, Streamlit, MediaPipe, and optional Gemini API during an internship at Abacus Consulting, Lahore (Sep 2025). Supports Squat, Bicep Curl, and Overhead Press with rep counting, feedback, and SQLite storage.
