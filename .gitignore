@@ -10,7 +10,9 @@ __pycache__/
 .env
 
 # Streamlit cache
-.streamlit/
+.streamlit/*
+!.streamlit/config.toml
+
 
 # Jupyter notebooks checkpoints
 .ipynb_checkpoints/
