@@ -998,3 +998,11 @@
 2025-09-15 16:11:54 - DEBUG - Overhead Press Feedback: Great job!
 2025-09-15 16:12:00 - INFO - Overhead Press Rep 4: Correct, Avg Elbow Angle: 121.0°, Min: 78.6°, Max: 170.4°, Avg Arm Angle: 25.9°, Avg Torso Angle: 1.1°, Hip Y Change: 60.5 pixels, Correct Reps: 2, Incorrect Reps: 2
 2025-09-15 16:12:00 - DEBUG - Overhead Press Feedback: Great job!
+2025-09-22 18:22:48 - INFO - Squat Rep 1: Correct, Avg Knee Angle: 135.5°, Min: 58.6°, Max: 179.4°, Avg Back Angle: 6.7°, Correct Reps: 1, Incorrect Reps: 0
+2025-09-22 18:22:48 - DEBUG - Squat Feedback: Great job!
+2025-09-22 18:22:52 - INFO - Squat Rep 2: Correct, Avg Knee Angle: 117.3°, Min: 52.8°, Max: 178.9°, Avg Back Angle: 5.2°, Correct Reps: 2, Incorrect Reps: 0
+2025-09-22 18:22:52 - DEBUG - Squat Feedback: Great job!
+2025-09-22 18:22:57 - INFO - Squat Rep 3: Correct, Avg Knee Angle: 109.9°, Min: 54.1°, Max: 172.8°, Avg Back Angle: 4.4°, Correct Reps: 3, Incorrect Reps: 0
+2025-09-22 18:22:57 - DEBUG - Squat Feedback: Great job!
+2025-09-22 18:23:03 - INFO - Squat Rep 4: Correct, Avg Knee Angle: 112.7°, Min: 56.8°, Max: 173.8°, Avg Back Angle: 4.2°, Correct Reps: 4, Incorrect Reps: 0
+2025-09-22 18:23:03 - DEBUG - Squat Feedback: Great job!
