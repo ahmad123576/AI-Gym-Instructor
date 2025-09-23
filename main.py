@@ -1,3 +1,6 @@
+import os
+os.environ['MEDIAPIPE_HOME'] = '/tmp'
+
 import streamlit as st
 import cv2
 import numpy as np
@@ -5,7 +8,6 @@ from pose_detector import PoseDetector
 from rep_counter import SquatCounter, BicepCurlCounter, OverheadPressCounter
 from utils import draw_rep_count
 import tempfile
-import os
 import sqlite3
 from datetime import datetime
 from dotenv import load_dotenv
@@ -500,4 +502,5 @@ else:
             if output_path and os.path.exists(output_path):
                 os.unlink(output_path)
         except PermissionError as e:
+
             st.warning(f"Could not delete temporary files: {e}. They will be removed on system cleanup.")
