@@ -15,6 +15,9 @@ import google.generativeai as genai
 import json
 import re
 
+# Move set_page_config here
+st.set_page_config(page_title="AI Gym Instructor", layout="wide", initial_sidebar_state="collapsed")
+
 def craft_rule_based_feedback(snapshot):
     try:
         exercise = snapshot.get("exercise")
@@ -84,7 +87,7 @@ else:
     st.warning("Gemini API key not found in .env file. Gemini feedback will be disabled.")
 
 # Disable sidebar
-st.set_page_config(page_title="AI Gym Instructor", layout="wide", initial_sidebar_state="collapsed")
+# st.set_page_config(page_title="AI Gym Instructor", layout="wide", initial_sidebar_state="collapsed")
 
 def init_database():
     conn = sqlite3.connect('workout_progress.db')
@@ -502,5 +505,4 @@ else:
             if output_path and os.path.exists(output_path):
                 os.unlink(output_path)
         except PermissionError as e:
-
             st.warning(f"Could not delete temporary files: {e}. They will be removed on system cleanup.")
