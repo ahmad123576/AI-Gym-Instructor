@@ -1,16 +1,4 @@
-# Virtual environments
-env/
-venv/
-
-# Python cache
-__pycache__/
-*.pyc
-
-# Environment variables
 .env
+env/
 
-# Streamlit cache
-.streamlit/
 
-# Jupyter notebooks checkpoints
-.ipynb_checkpoints/
