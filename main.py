@@ -1,6 +1,3 @@
-import os
-os.environ['MEDIAPIPE_HOME'] = '/tmp'
-
 import streamlit as st
 import cv2
 import numpy as np
@@ -8,15 +5,12 @@ from pose_detector import PoseDetector
 from rep_counter import SquatCounter, BicepCurlCounter, OverheadPressCounter
 from utils import draw_rep_count
 import tempfile
+import os
 import sqlite3
 from datetime import datetime
-from dotenv import load_dotenv
 import google.generativeai as genai
 import json
 import re
-
-# Move set_page_config here
-st.set_page_config(page_title="AI Gym Instructor", layout="wide", initial_sidebar_state="collapsed")
 
 def craft_rule_based_feedback(snapshot):
     try:
@@ -76,18 +70,12 @@ def craft_rule_based_feedback(snapshot):
         pass
     return "You are doing it wrong: adjust your form to meet targets."
 
-# Load environment variables from .env file
-load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# Initialize session state for Gemini API key (user-provided only)
+if 'gemini_api_key' not in st.session_state:
+    st.session_state.gemini_api_key = ""
 
-# Configure Gemini API if key is available
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-else:
-    st.warning("Gemini API key not found in .env file. Gemini feedback will be disabled.")
-
-# Disable sidebar
-# st.set_page_config(page_title="AI Gym Instructor", layout="wide", initial_sidebar_state="collapsed")
+# Enable sidebar for API key input
+st.set_page_config(page_title="AI Gym Instructor", layout="wide", initial_sidebar_state="expanded")
 
 def init_database():
     conn = sqlite3.connect('workout_progress.db')
@@ -130,8 +118,8 @@ def save_session(exercise, correct_reps, incorrect_reps, session_duration):
 
 def get_gemini_feedback(exercise, correct_reps, incorrect_reps, errors, rep_correct, model_name=None, temperature=0.4, snapshot=None):
     """Generate concise, responsive feedback using Gemini API with structured output."""
-    if not GEMINI_API_KEY:
-        return "Gemini API key not configured."
+    if not st.session_state.gemini_api_key:
+        return craft_rule_based_feedback(snapshot) if snapshot else "No feedback available."
     
     total_reps = correct_reps + incorrect_reps
     primary_error = errors[0] if errors else ""
@@ -151,7 +139,7 @@ Context:
 - Total reps: {total_reps}
 - Last rep status: {"correct" if rep_correct else "incorrect"}
 - Primary form issue: {primary_error if primary_error else "none"}
- - Rep metrics snapshot: {snapshot_text}
+- Rep metrics snapshot: {snapshot_text}
 
 Task:
 Return STRICT JSON only with keys:
@@ -187,11 +175,10 @@ No extra commentary, no markdown.
                 return msg
             return ""
         except Exception:
-            # If still not JSON, avoid showing stray tokens like 'json'
             return ""
     except Exception as e:
         print(f"Gemini API error: {str(e)}")
-        return ""
+        return craft_rule_based_feedback(snapshot) if snapshot else ""
 
 def wrap_text(text, max_width, font, font_scale, thickness):
     """Wrap text to fit within max_width pixels, returning lines of text."""
@@ -218,8 +205,8 @@ def process_video(input_path, detector, counter, use_gemini):
     if not cap.isOpened():
         return None, "Error playing video. Try uploading an MP4 file.", 0.0
 
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    width = 640
+    height = 480
     fps = cap.get(cv2.CAP_PROP_FPS) or 30
 
     output_path = tempfile.mktemp(suffix='.mp4')
@@ -239,6 +226,7 @@ def process_video(input_path, detector, counter, use_gemini):
         ret, frame = cap.read()
         if not ret:
             break
+        frame = cv2.resize(frame, (width, height))
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         landmarks = detector.detect_pose(frame, draw=True)
         frame, default_feedback = counter.update(landmarks, frame)
@@ -319,6 +307,20 @@ if 'page' not in st.session_state:
 if 'use_gemini' not in st.session_state:
     st.session_state.use_gemini = False
 
+# Sidebar for Gemini API key input
+with st.sidebar:
+    st.header("Gemini API Configuration")
+    st.session_state.gemini_api_key = st.text_input("Enter Gemini API Key", value=st.session_state.gemini_api_key, type="password")
+    if st.session_state.gemini_api_key:
+        try:
+            genai.configure(api_key=st.session_state.gemini_api_key)
+            st.success("Gemini API key configured successfully.")
+        except Exception as e:
+            st.error(f"Invalid Gemini API key: {e}")
+
+# Auto-enable Gemini feedback if a key is provided
+st.session_state.use_gemini = bool(st.session_state.gemini_api_key)
+
 # Main page content
 st.title("AI Gym Instructor")
 
@@ -341,16 +343,13 @@ elif st.session_state.page == 'tutorials':
 # Exercise selection
 exercise = st.selectbox("Select Exercise", ["Squat", "Bicep Curl", "Overhead Press"])
 
-# Gemini feedback toggle
-st.session_state.use_gemini = st.checkbox("Enable Gemini Feedback", value=st.session_state.use_gemini)
-
 # Optional Gemini controls
 if 'gemini_model' not in st.session_state:
     st.session_state.gemini_model = 'gemini-2.0-flash'
 if 'gemini_temperature' not in st.session_state:
     st.session_state.gemini_temperature = 0.4
 
-if st.session_state.use_gemini and GEMINI_API_KEY:
+if st.session_state.gemini_api_key:
     model_col, temp_col = st.columns(2)
     st.session_state.gemini_model = model_col.selectbox(
         "Gemini Model",
@@ -390,6 +389,12 @@ if input_type == "Webcam":
     if not cap.isOpened():
         st.error("Cannot open webcam")
     else:
+        # Request 640x480 from the camera to reduce processing overhead
+        try:
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        except Exception:
+            pass
         stframe = st.empty()
         start_time = datetime.now()
         st.session_state.webcam_active = True
@@ -402,6 +407,7 @@ if input_type == "Webcam":
                 ret, frame = cap.read()
                 if not ret:
                     break
+                frame = cv2.resize(frame, (640, 480))
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 landmarks = detector.detect_pose(frame, draw=True)
                 frame, default_feedback = st.session_state.counter.update(landmarks, frame)
@@ -428,12 +434,12 @@ if input_type == "Webcam":
                     font = cv2.FONT_HERSHEY_SIMPLEX
                     font_scale = 0.7
                     thickness = 2
-                    max_width = frame.shape[1] - 40
+                    max_width = 640 - 40
                     lines = wrap_text(current_feedback, max_width, font, font_scale, thickness)
-                    text_y = frame.shape[0] - 50 - (len(lines) - 1) * 30
+                    text_y = 480 - 50 - (len(lines) - 1) * 30
                     for i, line in enumerate(lines):
                         text_size = cv2.getTextSize(line, font, font_scale, thickness)[0]
-                        text_x = (frame.shape[1] - text_size[0]) // 2
+                        text_x = (640 - text_size[0]) // 2
                         cv2.putText(
                             frame,
                             line,
