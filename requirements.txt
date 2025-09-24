@@ -1,7 +1,6 @@
-opencv-python-headless==4.10.0.84
+opencv-python-headless==4.5.5.64
 mediapipe==0.10.14
 numpy==1.26.4
-protobuf==4.25.3  # Helps with MediaPipe conflicts
 streamlit==1.39.0
 pandas
 matplotlib
